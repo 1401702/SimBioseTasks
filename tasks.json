@@ -1,0 +1,107 @@
+[
+  {
+    "Id": 1,
+    "Title": "Morning Workout",
+    "Description": "Detailed task about morning workout",
+    "CreatedDate": "2026-03-22T07:00:00",
+    "IsCompleted": true
+  },
+  {
+    "Id": 2,
+    "Title": "Check Emails",
+    "Description": "Detailed task about check emails",
+    "CreatedDate": "2026-03-22T08:30:00",
+    "IsCompleted": true
+  },
+  {
+    "Id": 3,
+    "Title": "Team Stand-up Meeting",
+    "Description": "Detailed task about team stand-up meeting",
+    "CreatedDate": "2026-03-22T09:30:00",
+    "IsCompleted": true
+  },
+  {
+    "Id": 4,
+    "Title": "Review Pull Requests",
+    "Description": "Detailed task about review pull requests",
+    "CreatedDate": "2026-03-22T10:00:00",
+    "IsCompleted": false
+  },
+  {
+    "Id": 5,
+    "Title": "Update Documentation",
+    "Description": "Detailed task about update documentation",
+    "CreatedDate": "2026-03-22T11:00:00",
+    "IsCompleted": false
+  },
+  {
+    "Id": 6,
+    "Title": "Lunch Break",
+    "Description": "Detailed task about lunch break",
+    "CreatedDate": "2026-03-22T12:00:00",
+    "IsCompleted": true
+  },
+  {
+    "Id": 7,
+    "Title": "Client Call",
+    "Description": "Detailed task about client call",
+    "CreatedDate": "2026-03-22T13:30:00",
+    "IsCompleted": false
+  },
+  {
+    "Id": 8,
+    "Title": "Refactor TaskController",
+    "Description": "Detailed task about refactor taskcontroller",
+    "CreatedDate": "2026-03-22T14:15:00",
+    "IsCompleted": false
+  },
+  {
+    "Id": 9,
+    "Title": "Fix JSON Serialization Bug",
+    "Description": "Detailed task about fix json serialization bug",
+    "CreatedDate": "2026-03-22T15:00:00",
+    "IsCompleted": false
+  },
+  {
+    "Id": 10,
+    "Title": "Prepare Weekly Report",
+    "Description": "Detailed task about prepare weekly report",
+    "CreatedDate": "2026-03-22T16:00:00",
+    "IsCompleted": false
+  },
+  {
+    "Id": 11,
+    "Title": "Grocery Shopping",
+    "Description": "Detailed task about grocery shopping",
+    "CreatedDate": "2026-03-22T17:30:00",
+    "IsCompleted": false
+  },
+  {
+    "Id": 12,
+    "Title": "Cook Dinner",
+    "Description": "Detailed task about cook dinner",
+    "CreatedDate": "2026-03-22T18:45:00",
+    "IsCompleted": false
+  },
+  {
+    "Id": 13,
+    "Title": "Read 20 Pages",
+    "Description": "Detailed task about read 20 pages",
+    "CreatedDate": "2026-03-22T20:00:00",
+    "IsCompleted": false
+  },
+  {
+    "Id": 14,
+    "Title": "Backup Project Files",
+    "Description": "Detailed task about backup project files",
+    "CreatedDate": "2026-03-22T21:30:00",
+    "IsCompleted": true
+  },
+  {
+    "Id": 15,
+    "Title": "Sleep",
+    "Description": "Detailed task about sleep",
+    "CreatedDate": "2026-03-22T23:00:00",
+    "IsCompleted": false
+  }
+]
