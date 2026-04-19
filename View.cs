@@ -2,6 +2,7 @@ namespace SimBioseTasks
 {
     public partial class View : Form
     {
+        public event Action<OperTask> OnViewEvent;
         public View()
         {
             InitializeComponent();
@@ -17,9 +18,9 @@ namespace SimBioseTasks
             // Temos que conectar o objetos do Model e do Controller
             // Desenhar janelas e botões ocorre no código automático da API WinForms
             // A animação do clique do botão é gerada pelo código da API WinForms
-            
+
         }
-        private void LoadTasks()
+        public void LoadTasks()
         {
             dgvTasks.DataSource = null;
             dgvTasks.DataSource = Controller._model.GetTasks().ToList();
@@ -36,6 +37,46 @@ namespace SimBioseTasks
                 dgvTasks.Rows[0].Selected = true;
             }
         }
+
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            // Criamos o comando
+            OperTask op = new OperTask();
+            op.Operation = "update";
+            op.Task = new BaseTask
+            {
+                Id = string.IsNullOrEmpty(lblId.Text) ? (int?)null : int.Parse(lblId.Text),
+                Title = txtTitle.Text,
+                Description = txtDescription.Text
+            };
+
+            // Enviamos para o Controller
+            OnViewEvent?.Invoke(op);
+        }
+        //private void btnUpdate_Click(object sender, EventArgs e)
+        //{
+
+        //    if (tmpTask == null) tmpTask = new BaseTask();
+
+        //    // criar tmpTask para passar para o TaskController
+        //    if (lblId.Text != "")
+        //    {
+        //        tmpTask.Id = null;
+        //    }
+        //    else
+        //    {
+        //        tmpTask.Id = int.Parse(lblId.Text);
+        //    }
+        //    tmpTask.Title = txtTitle.Text.Trim();
+        //    tmpTask.Description = txtDescription.Text.Trim();
+        //    tmpTask.IsCompleted = chkCompleted.Checked;
+
+        //    Controller.TaskView_btnUpdate_Click(tmpTask);
+
+        //    // ??este codigo tem de ser passado para o controller???
+
+        //    LoadTasks();
+        //}
         private void ClearDetail()
         {
             tmpTask = null;
@@ -75,30 +116,7 @@ namespace SimBioseTasks
             txtTitle.Select();
         }
 
-        private void btnUpdate_Click(object sender, EventArgs e)
-        {
 
-            if (tmpTask == null) tmpTask = new BaseTask();
-
-            // criar tmpTask para passar para o TaskController
-            if (lblId.Text != "")
-            {
-                tmpTask.Id = null;
-            }
-            else
-            {
-                tmpTask.Id = int.Parse(lblId.Text);
-            }
-            tmpTask.Title = txtTitle.Text.Trim();
-            tmpTask.Description = txtDescription.Text.Trim();
-            tmpTask.IsCompleted = chkCompleted.Checked;
-
-            Controller.TaskView_btnUpdate_Click(tmpTask);
-
-            // ??este codigo tem de ser passado para o controller???
-
-            LoadTasks();
-        }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {

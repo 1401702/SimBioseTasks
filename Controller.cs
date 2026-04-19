@@ -14,9 +14,9 @@ namespace SimBioseTasks
         public Controller()
         {
             _model = new Model();
-            _model.LoadTasksFromJson();
+            _model.getAllTasks();
             _view = new View();
-
+            _view.OnViewEvent += EventOnView;
             // no modo ciclo de run custom
             //_view.ActivateInterface();
             _view.Show();
@@ -44,6 +44,25 @@ namespace SimBioseTasks
                 // este loop tem de ser bem pensado, pois ele vai carregar o sistema
                 System.Threading.Thread.Sleep(1);
             }
+        }
+        private void EventOnView(OperTask args)
+        {
+            // Aqui o Controller decide o fluxo baseado na string
+            if (args.Operation == "update")
+            {
+                // Validação simples antes de passar ao Model
+                if (!string.IsNullOrEmpty(args.Task.Title))
+                {
+                    _model.UpdateTask(args.Task);
+                }
+            }
+            else if (args.Operation == "delete")
+            {
+                _model.DeleteTask(args.Task.Id.Value);
+            }
+
+            // Após o Model processar, o Controller manda a View atualizar a lista
+            _view.LoadTasks();
         }
         public static void OnCreateTask(BaseTask task)
         {
@@ -87,7 +106,7 @@ namespace SimBioseTasks
         }
         private static void RefreshView()
         {
-           
+
         }
     }
 }

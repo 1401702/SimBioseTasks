@@ -17,7 +17,12 @@ namespace SimBioseTasks
             _tasks = new List<BaseTask>();
             //LoadTasksFromJson();
         }
-        public void LoadTasksFromJson()
+        public void getAllTasks()
+        {
+            bool _state = LoadTasksFromJson();
+        }
+
+        public bool LoadTasksFromJson()
         {
             if (File.Exists(FileName))
             {
@@ -25,14 +30,20 @@ namespace SimBioseTasks
                 if (!string.IsNullOrWhiteSpace(json))
                 {
                     _tasks = JsonConvert.DeserializeObject<List<BaseTask>>(json) ?? new List<BaseTask>();
+                    return true;
+                }
+                else
+                {
+                    return false;
                 }
             }
             else
             {
                 _tasks = new List<BaseTask>();
+                return false;
             }
         }
-        public void Save()
+        public void SaveTasks()
         {
             string json = JsonConvert.SerializeObject(_tasks, Formatting.Indented);
             File.WriteAllText(FileName, json);
@@ -43,7 +54,7 @@ namespace SimBioseTasks
             var maxId = _tasks.Count > 0 ? _tasks.Max(t => t.Id) : 0;
             task.Id = maxId + 1;
             _tasks.Add(task);
-            Save();
+            SaveTasks();
         }
         public void UpdateTask(BaseTask updatedTask)
         {
@@ -56,9 +67,9 @@ namespace SimBioseTasks
                 exists.Title = updatedTask.Title;
                 exists.Description = updatedTask.Description;
                 exists.IsCompleted = updatedTask.IsCompleted;
-                
 
-                Save(); // grava imediatamente em disk
+
+                SaveTasks(); // grava imediatamente em disk
                 exists = null;
             }
         }
@@ -68,7 +79,7 @@ namespace SimBioseTasks
             if (task != null)
             {
                 _tasks.Remove(task);
-                Save();
+                SaveTasks();
             }
         }
         /// <summary>
@@ -87,6 +98,6 @@ namespace SimBioseTasks
             // a _tasks que é a lista
             return _tasks.ToList();
         }
-        
+
     }
 }
