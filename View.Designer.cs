@@ -36,6 +36,7 @@
             btnUpdate = new Button();
             btnDelete = new Button();
             panelDetail = new Panel();
+            btnConfirm = new Button();
             lblId = new Label();
             txtTitle = new TextBox();
             txtDescription = new TextBox();
@@ -64,7 +65,7 @@
             // 
             split.Panel2.Controls.Add(panelDetail);
             split.Size = new Size(884, 716);
-            split.SplitterDistance = 507;
+            split.SplitterDistance = 506;
             split.TabIndex = 0;
             // 
             // panelTop
@@ -76,16 +77,17 @@
             panelTop.Dock = DockStyle.Fill;
             panelTop.Location = new Point(0, 0);
             panelTop.Name = "panelTop";
-            panelTop.Size = new Size(884, 507);
+            panelTop.Size = new Size(884, 506);
             panelTop.TabIndex = 0;
             // 
             // dgvTasks
             // 
             dgvTasks.Dock = DockStyle.Bottom;
-            dgvTasks.Location = new Point(0, 157);
+            dgvTasks.Location = new Point(0, 156);
             dgvTasks.Name = "dgvTasks";
             dgvTasks.Size = new Size(884, 350);
             dgvTasks.TabIndex = 0;
+            dgvTasks.CellValueChanged += dgvTasks_CellValueChanged;
             dgvTasks.SelectionChanged += dgvTasks_SelectionChanged;
             // 
             // btnAdd
@@ -94,7 +96,7 @@
             btnAdd.Name = "btnAdd";
             btnAdd.Size = new Size(80, 30);
             btnAdd.TabIndex = 1;
-            btnAdd.Text = "Add";
+            btnAdd.Text = "Add New";
             btnAdd.Click += btnAdd_Click;
             // 
             // btnUpdate
@@ -117,6 +119,7 @@
             // 
             // panelDetail
             // 
+            panelDetail.Controls.Add(btnConfirm);
             panelDetail.Controls.Add(lblId);
             panelDetail.Controls.Add(txtTitle);
             panelDetail.Controls.Add(txtDescription);
@@ -124,8 +127,17 @@
             panelDetail.Dock = DockStyle.Fill;
             panelDetail.Location = new Point(0, 0);
             panelDetail.Name = "panelDetail";
-            panelDetail.Size = new Size(884, 205);
+            panelDetail.Size = new Size(884, 206);
             panelDetail.TabIndex = 0;
+            // 
+            // btnConfirm
+            // 
+            btnConfirm.Location = new Point(12, 164);
+            btnConfirm.Name = "btnConfirm";
+            btnConfirm.Size = new Size(80, 30);
+            btnConfirm.TabIndex = 4;
+            btnConfirm.Text = "Confirm";
+            btnConfirm.Click += btnAddNew_Click;
             // 
             // lblId
             // 
@@ -159,13 +171,13 @@
             chkCompleted.TabIndex = 2;
             chkCompleted.Text = "Completed";
             // 
-            // TaskView
+            // View
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(884, 716);
             Controls.Add(split);
-            Name = "TaskView";
+            Name = "View";
             Text = "Task Manager - List + Detail";
             split.Panel1.ResumeLayout(false);
             split.Panel2.ResumeLayout(false);
@@ -195,5 +207,7 @@
 
 
         #endregion
+
+        private Button btnConfirm;
     }
 }

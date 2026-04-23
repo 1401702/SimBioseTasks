@@ -8,96 +8,119 @@ namespace SimBioseTasks
 {
     public class Model
     {
+        #region Fields and Properties
+
         private const string FileName = "tasks.json";
         private List<BaseTask> _tasks;
 
         public IReadOnlyList<BaseTask> Tasks => _tasks;
+
+        #endregion
+
+        #region Constructor
+
         public Model()
         {
             _tasks = new List<BaseTask>();
-            //LoadTasksFromJson();
+            LoadTasksFromJson();
         }
-        public void getAllTasks()
-        {
-            bool _state = LoadTasksFromJson();
-        }
+
+        #endregion
+
+        #region Load and Save
 
         public bool LoadTasksFromJson()
         {
-            if (File.Exists(FileName))
-            {
-                string json = File.ReadAllText(FileName);
-                if (!string.IsNullOrWhiteSpace(json))
-                {
-                    _tasks = JsonConvert.DeserializeObject<List<BaseTask>>(json) ?? new List<BaseTask>();
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else
+            if (!File.Exists(FileName))
             {
                 _tasks = new List<BaseTask>();
                 return false;
             }
+
+            string json = File.ReadAllText(FileName);
+
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                _tasks = new List<BaseTask>();
+                return false;
+            }
+
+            _tasks = JsonConvert.DeserializeObject<List<BaseTask>>(json) ?? new List<BaseTask>();
+            return true;
         }
+
         public void SaveTasks()
         {
             string json = JsonConvert.SerializeObject(_tasks, Formatting.Indented);
             File.WriteAllText(FileName, json);
         }
-        public void AddTask(BaseTask task)
+
+        #endregion
+
+        #region CRUD
+
+        public void CreateTask(BaseTask task)
         {
-            if (task == null) throw new ArgumentNullException(nameof(task));
-            var maxId = _tasks.Count > 0 ? _tasks.Max(t => t.Id) : 0;
-            task.Id = maxId + 1;
+            ValidateTask(task);
+
+            task.Id = GetNextId();
             _tasks.Add(task);
+
             SaveTasks();
         }
-        public void UpdateTask(BaseTask updatedTask)
-        {
-            if (updatedTask == null) throw new ArgumentNullException(nameof(updatedTask));
-
-            BaseTask exists = _tasks.FirstOrDefault(t => t.Id == updatedTask.Id);
-            if (exists != null)
-            {
-                // Copia os valores da tarefa alterada para o item existente
-                exists.Title = updatedTask.Title;
-                exists.Description = updatedTask.Description;
-                exists.IsCompleted = updatedTask.IsCompleted;
-
-
-                SaveTasks(); // grava imediatamente em disk
-                exists = null;
-            }
-        }
-        public void DeleteTask(int id)
-        {
-            BaseTask task = _tasks.FirstOrDefault(t => t.Id == id);
-            if (task != null)
-            {
-                _tasks.Remove(task);
-                SaveTasks();
-            }
-        }
-        /// <summary>
-        ///  Devolve a tarefa com o Id dado, ou null se não existir.
-        /// </summary>
-        public BaseTask GetTaskById(int id)
+        public BaseTask ReadTask(int id)
         {
             return _tasks.FirstOrDefault(t => t.Id == id);
         }
-        /// <summary>
-        ///  Devolve uma cópia da lista de tarefas.
-        /// </summary>
+        public void UpdateTask(BaseTask updatedTask)
+        {
+            ValidateTask(updatedTask);
+
+            BaseTask existing = _tasks.FirstOrDefault(t => t.Id == updatedTask.Id);
+            if (existing == null) return;
+
+            existing.Title = updatedTask.Title;
+            existing.Description = updatedTask.Description;
+            existing.IsCompleted = updatedTask.IsCompleted;
+
+            SaveTasks();
+        }
+
+        public void DeleteTask(int id)
+        {
+            BaseTask task = _tasks.FirstOrDefault(t => t.Id == id);
+            if (task == null) return;
+
+            _tasks.Remove(task);
+            SaveTasks();
+        }
+
         public List<BaseTask> GetTasks()
         {
-            // não sei se deve ser por metodo ou ir diretamente 
-            // a _tasks que é a lista
             return _tasks.ToList();
         }
 
+        #endregion
+
+        #region Rules
+
+        private void ValidateTask(BaseTask task)
+        {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+
+            if (string.IsNullOrWhiteSpace(task.Title))
+                throw new ArgumentException("Task title is required.");
+        }
+
+        private int GetNextId()
+        {
+            if (_tasks.Count == 0)
+                return 1;
+
+            return _tasks.Max(t => t.Id ?? 0) + 1;
+        }
+
+        #endregion
     }
 }

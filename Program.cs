@@ -14,9 +14,16 @@ namespace SimBioseTasks
             //Application.Run(new View());
 
             Controller controller = new Controller();
-            // passo o run para o controller
-            controller.ProgInit();
-            
+            // passa-se o run para o controller
+
+
+            // Não sei se existe uma forma melhor de passar o controlo para o controller do que o while
+            //ApplicationConfiguration.Initialize();
+            //Application.Run(new View());
+            //ThreadContext.FromCurrent().RunMessageLoop(msoloop.Main, new ApplicationContext(mainForm));
+            //controller.ProgInit();  // coloca-se o loop while no construtor do controller
+
+
         }
     }
 }

@@ -14,13 +14,17 @@ namespace SimBioseTasks
         public Controller()
         {
             _model = new Model();
-            _model.getAllTasks();
             _view = new View();
+
+
+            // conceito event delegate 
             _view.OnViewEvent += EventOnView;
-            // no modo ciclo de run custom
-            //_view.ActivateInterface();
+
             _view.Show();
+
+            // não deixa fechar o programa se não existir o while o programa abre e fecha
             // A tecnica é enquanto houver forms abertos o loop continua
+
             while (Application.OpenForms.Count > 0)
             {
                 Application.DoEvents();
@@ -30,25 +34,11 @@ namespace SimBioseTasks
                 System.Threading.Thread.Sleep(200);
             }
         }
-        public void ProgInit()
-        {
-            //Implementar....
-
-            _view.ActivateInterface();
-            // A tecnica é enquanto houver forms abertos o loop continua
-            while (Application.OpenForms.Count > 0)
-            {
-                Application.DoEvents();
-
-                // aqui temos de controlar o tempo para poupar cpu, mas o codigo tem de ser responsivo
-                // este loop tem de ser bem pensado, pois ele vai carregar o sistema
-                System.Threading.Thread.Sleep(1);
-            }
-        }
         private void EventOnView(OperTask args)
         {
             // Aqui o Controller decide o fluxo baseado na string
-            if (args.Operation == "update")
+            // As operations pode ser um enum
+            if (args.Operation == "Update")
             {
                 // Validação simples antes de passar ao Model
                 if (!string.IsNullOrEmpty(args.Task.Title))
@@ -56,9 +46,13 @@ namespace SimBioseTasks
                     _model.UpdateTask(args.Task);
                 }
             }
-            else if (args.Operation == "delete")
+            else if (args.Operation == "Delete")
             {
                 _model.DeleteTask(args.Task.Id.Value);
+            }
+            else if (args.Operation == "Create")
+            {
+                _model.CreateTask(args.Task);
             }
 
             // Após o Model processar, o Controller manda a View atualizar a lista
@@ -66,7 +60,7 @@ namespace SimBioseTasks
         }
         public static void OnCreateTask(BaseTask task)
         {
-            _model.AddTask(task);
+            _model.CreateTask(task);
             RefreshView();
         }
 
@@ -90,7 +84,7 @@ namespace SimBioseTasks
                 }
                 else
                 {
-                    _model.AddTask(detailTask);
+                    _model.CreateTask(detailTask);
                 }
             }
             else
