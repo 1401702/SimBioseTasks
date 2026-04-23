@@ -1,10 +1,14 @@
 ﻿using Newtonsoft.Json;
 using SimBioseTasks;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 /// <summary>
 /// Model do MVC
 /// </summary>
-public class Model : ITaskModel
+public class Model
 {
     private const string FileName = "tasks.json";
     private List<BaseTask> _tasks;
@@ -15,9 +19,9 @@ public class Model : ITaskModel
     public IReadOnlyList<BaseTask> Tasks => _tasks;
 
     /// <summary>
-    /// Ocorre quando a coleção de tarefas é alterada.
+    /// Evento disparado quando o model altera tarefas.
     /// </summary>
-    public event EventHandler<OperTaskEventArgs>? TasksChanged;
+    public event Action<OperTask>? OnModelEvent;
 
     /// <summary>
     /// Inicializa uma nova instância do modelo e carrega as tarefas do ficheiro JSON.
@@ -31,10 +35,6 @@ public class Model : ITaskModel
     /// <summary>
     /// Carrega as tarefas a partir do ficheiro JSON para memória.
     /// </summary>
-    /// <returns>
-    /// Devolve true se o carregamento foi efetuado com sucesso;
-    /// devolve false se o ficheiro não existir ou estiver vazio.
-    /// </returns>
     private bool LoadTasksFromJson()
     {
         if (!File.Exists(FileName))
@@ -67,12 +67,6 @@ public class Model : ITaskModel
     /// <summary>
     /// Executa uma operação sobre uma tarefa com base no comando recebido.
     /// </summary>
-    /// <param name="operTask">
-    /// Objeto que contém a operação a executar e a tarefa associada.
-    /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// Lançada quando o comando ou a tarefa são nulos.
-    /// </exception>
     public void Execute(OperTask operTask)
     {
         if (operTask == null)
@@ -94,48 +88,51 @@ public class Model : ITaskModel
             case TaskOp.Delete:
                 Delete(operTask.Task);
                 break;
+
+            case TaskOp.Save:
+                break;
+
+            case TaskOp.Confirm:
+                break;
         }
     }
 
     /// <summary>
-    /// Cria uma nova tarefa, atribui um identificador único,
-    /// guarda os dados e notifica a alteração.
+    /// Cria uma nova tarefa.
     /// </summary>
-    /// <param name="task">Tarefa a criar.</param>
     private void Create(BaseTask task)
     {
-        ValidateTask(task);
-        task.Id = GetNextId();
-        _tasks.Add(task);
-        SaveTasks();
-        OnTasksChanged(new OperTask { Operation = TaskOp.Create, Task = task });
+        if (ValidateTask(task))
+        {
+            task.Id = GetNextId();
+            _tasks.Add(task);
+            SaveTasks();
+            OnModelEvent?.Invoke(new OperTask { Operation = TaskOp.Create, Task = task });
+        }
     }
 
     /// <summary>
-    /// Atualiza os dados de uma tarefa existente,
-    /// guarda as alterações e notifica a alteração.
+    /// Atualiza uma tarefa existente.
     /// </summary>
-    /// <param name="task">Tarefa com os novos dados.</param>
     private void Update(BaseTask task)
     {
-        ValidateTask(task);
+        if (ValidateTask(task))
+        {
+            var existing = _tasks.FirstOrDefault(t => t.Id == task.Id);
+            if (existing == null) return;
 
-        var existing = _tasks.FirstOrDefault(t => t.Id == task.Id);
-        if (existing == null) return;
+            existing.Title = task.Title;
+            existing.Description = task.Description;
+            existing.IsCompleted = task.IsCompleted;
 
-        existing.Title = task.Title;
-        existing.Description = task.Description;
-        existing.IsCompleted = task.IsCompleted;
-
-        SaveTasks();
-        OnTasksChanged(new OperTask { Operation = TaskOp.Update, Task = existing });
+            SaveTasks();
+            OnModelEvent?.Invoke(new OperTask { Operation = TaskOp.Update, Task = existing });
+        }
     }
 
     /// <summary>
-    /// Remove uma tarefa existente,
-    /// guarda as alterações e notifica a alteração.
+    /// Remove uma tarefa existente.
     /// </summary>
-    /// <param name="task">Tarefa a remover.</param>
     private void Delete(BaseTask task)
     {
         if (task.Id == null) return;
@@ -145,13 +142,12 @@ public class Model : ITaskModel
 
         _tasks.Remove(existing);
         SaveTasks();
-        OnTasksChanged(new OperTask { Operation = TaskOp.Delete, Task = existing });
+        OnModelEvent?.Invoke(new OperTask { Operation = TaskOp.Delete, Task = existing });
     }
 
     /// <summary>
-    /// Calcula o próximo identificador disponível para uma nova tarefa.
+    /// Calcula o próximo identificador disponível.
     /// </summary>
-    /// <returns>O próximo identificador inteiro disponível.</returns>
     private int GetNextId()
     {
         if (_tasks.Count == 0)
@@ -161,32 +157,13 @@ public class Model : ITaskModel
     }
 
     /// <summary>
-    /// Valida os dados de uma tarefa antes de serem persistidos.
+    /// Valida os dados de uma tarefa.
     /// </summary>
-    /// <param name="task">Tarefa a validar.</param>
-    /// <exception cref="ArgumentNullException">
-    /// Lançada quando a tarefa é nula.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    /// Lançada quando o título da tarefa está vazio ou inválido.
-    /// </exception>
-    private void ValidateTask(BaseTask task)
+    private bool ValidateTask(BaseTask task)
     {
-        if (task == null)
-            throw new ArgumentNullException(nameof(task));
+        if (task == null) return false;
+        if (string.IsNullOrWhiteSpace(task.Title)) return false;
 
-        if (string.IsNullOrWhiteSpace(task.Title))
-            throw new ArgumentException("Task title is required.");
-    }
-
-    /// <summary>
-    /// Dispara o evento de alteração de tarefas.
-    /// </summary>
-    /// <param name="operTask">
-    /// Informação sobre a operação executada e a tarefa afetada.
-    /// </param>
-    protected virtual void OnTasksChanged(OperTask operTask)
-    {
-        TasksChanged?.Invoke(this, new OperTaskEventArgs(operTask));
+        return true;
     }
 }

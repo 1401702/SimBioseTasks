@@ -52,7 +52,6 @@ namespace SimBioseTasks
             else
             {
                 dgvTasks.ClearSelection();
-                dgvTasks.Rows[0].Selected = true;
                 selectedTask = dgvTasks.Rows[0].DataBoundItem as BaseTask;
                 if (selectedTask != null)
                     ShowDetail(selectedTask);
@@ -82,13 +81,22 @@ namespace SimBioseTasks
         private void dgvTasks_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvTasks.SelectedRows.Count == 0)
+            {
+                ClearDetail();
                 return;
+            }
 
             var row = dgvTasks.SelectedRows[0];
-            selectedTask = row.DataBoundItem as BaseTask;
 
-            if (selectedTask != null)
-                ShowDetail(selectedTask);
+            if (row.DataBoundItem is BaseTask task)
+            {
+                selectedTask = task;
+                ShowDetail(task);
+            }
+            else
+            {
+                ClearDetail();
+            }
         }
 
         /// <summary>
