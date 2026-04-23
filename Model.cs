@@ -13,7 +13,8 @@ using System.Linq;
 /// </summary>
 public class Model
 {
-    private const string FileName = "tasks.json";
+    private static readonly string FileName = "tasks.json";
+
     private List<BaseTask> _tasks;
 
     /// <summary>
@@ -86,22 +87,30 @@ public class Model
     /// </returns>
     private bool LoadTasksFromJson()
     {
-        if (!File.Exists(FileName))
+        try
+        {
+            if (!File.Exists(FileName))
+            {
+                _tasks = new List<BaseTask>();
+                return false;
+            }
+
+            string json = File.ReadAllText(FileName);
+
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                _tasks = new List<BaseTask>();
+                return false;
+            }
+
+            _tasks = JsonConvert.DeserializeObject<List<BaseTask>>(json) ?? new List<BaseTask>();
+            return true;
+        }
+        catch (Exception ex)
         {
             _tasks = new List<BaseTask>();
-            return false;
+            throw new InvalidOperationException("Erro ao carregar tasks.json", ex);
         }
-
-        string json = File.ReadAllText(FileName);
-
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            _tasks = new List<BaseTask>();
-            return false;
-        }
-
-        _tasks = JsonConvert.DeserializeObject<List<BaseTask>>(json) ?? new List<BaseTask>();
-        return true;
     }
 
     /// <summary>
@@ -109,8 +118,15 @@ public class Model
     /// </summary>
     private void SaveTasks()
     {
-        string json = JsonConvert.SerializeObject(_tasks, Formatting.Indented);
-        File.WriteAllText(FileName, json);
+        try
+        {
+            string json = JsonConvert.SerializeObject(_tasks, Formatting.Indented);
+            File.WriteAllText(FileName, json);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Erro ao guardar tasks.json.", ex);
+        }
     }
 
     /// <summary>

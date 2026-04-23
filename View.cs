@@ -11,6 +11,9 @@ namespace SimBioseTasks
     /// </summary>
     public partial class View : Form
     {
+
+        private bool _isRefreshingGrid = false;
+
         /// <summary>
         /// Ocorre quando o utilizador executa uma ação na interface,
         /// como criar, atualizar ou eliminar uma tarefa.
@@ -42,21 +45,39 @@ namespace SimBioseTasks
         /// <param name="tasks">Lista de tarefas a apresentar na interface.</param>
         public void LoadTasks(List<BaseTask> tasks)
         {
-            _tasksSource.DataSource = new BindingList<BaseTask>(tasks);
-            dgvTasks.DataSource = _tasksSource;
+            _isRefreshingGrid = true;
+            try
+            {
+                _tasksSource.DataSource = new BindingList<BaseTask>(tasks);
+                dgvTasks.DataSource = _tasksSource;
 
-            if (dgvTasks.Rows.Count == 0)
-            {
-                ClearDetail();
+                if (dgvTasks.Rows.Count == 0)
+                {
+                    ClearDetail();
+                }
+                else
+                {
+                    dgvTasks.ClearSelection();
+                    selectedTask = dgvTasks.Rows[0].DataBoundItem as BaseTask;
+                    if (selectedTask != null)
+                        ShowDetail(selectedTask);
+                }
             }
-            else
+            finally
             {
-                dgvTasks.ClearSelection();
-                selectedTask = dgvTasks.Rows[0].DataBoundItem as BaseTask;
-                if (selectedTask != null)
-                    ShowDetail(selectedTask);
+                _isRefreshingGrid = false;
             }
         }
+
+        /// <summary>
+        /// Exibe uma mensagem de erro para o utilizador.
+        /// </summary>
+        /// <param name="message"></param>
+        public void ShowError(string message)
+        {
+            MessageBox.Show(message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
 
         /// <summary>
         /// Limpa os campos do painel de detalhe e remove a seleção atual.
@@ -158,12 +179,24 @@ namespace SimBioseTasks
         /// <param name="e">Dados associados ao evento.</param>
         private void btnUpdate_Click(object sender, EventArgs e)
         {
+            int? id = null;
+            if (!string.IsNullOrWhiteSpace(lblId.Text))
+            {
+                if (int.TryParse(lblId.Text, out int parsedId))
+                    id = parsedId;
+                else
+                {
+                    ShowError("ID inválido.");
+                    return;
+                }
+            }
+
             var op = new OperTask
             {
                 Operation = TaskOp.Update,
                 Task = new BaseTask
                 {
-                    Id = string.IsNullOrWhiteSpace(lblId.Text) ? (int?)null : int.Parse(lblId.Text),
+                    Id = id,
                     Title = txtTitle.Text,
                     Description = txtDescription.Text,
                     IsCompleted = chkCompleted.Checked
@@ -206,6 +239,9 @@ namespace SimBioseTasks
         /// <param name="e">Dados associados ao evento da célula alterada.</param>
         private void dgvTasks_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
+
+            if (_isRefreshingGrid) return;
+
             if (e.RowIndex < 0) return;
 
             var row = dgvTasks.Rows[e.RowIndex];

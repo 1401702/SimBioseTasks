@@ -15,6 +15,9 @@ namespace SimBioseTasks
         private readonly Model _model;
         private readonly View _view;
 
+        public event Action<string>? OnError;
+
+
         /// <summary>
         /// Evento emitido pelo Controller para encaminhar pedidos da View para o Model.
         /// Desta forma, o Controller não invoca diretamente métodos do Model,
@@ -34,6 +37,8 @@ namespace SimBioseTasks
             _view.OnViewEvent += EventOnView;
             _model.OnModelEvent += EventOnModel;
             OnControllerToModel += _model.EventOnController;
+            OnError += msg => _view.ShowError(msg);
+
         }
 
         /// <summary>
@@ -71,9 +76,13 @@ namespace SimBioseTasks
             {
                 OnControllerToModel?.Invoke(args);
             }
+            catch (InvalidOperationException ex)
+            {
+                OnError?.Invoke(ex.Message); // erro controlado do Model
+            }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error");
+                OnError?.Invoke("Erro inesperado: " + ex.Message);
             }
         }
 
