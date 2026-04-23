@@ -8,6 +8,7 @@ namespace SimBioseTasks
     /// Representa o controlador da aplicação.
     /// É responsável por ligar a View ao Model, tratar os eventos da interface
     /// e coordenar a atualização dos dados apresentados.
+    /// O arranque da aplicação é iniciado a partir do próprio controlador.
     /// </summary>
     public class Controller
     {
@@ -29,19 +30,22 @@ namespace SimBioseTasks
         }
 
         /// <summary>
-        /// Inicia a aplicação carregando as tarefas atuais na vista
-        /// e mostrando o formulário principal.
+        /// Inicia o fluxo principal da aplicação.
+        /// Carrega o estado inicial na vista e inicia o ciclo de execução WinForms.
         /// </summary>
         public void Start()
         {
-            _view.LoadTasks(_model.Tasks.ToList());
-            _view.Show();
+            RefreshView();
+            Application.Run(_view);
         }
 
         /// <summary>
-        /// Obtém o formulário principal da aplicação.
+        /// Atualiza os dados apresentados na vista com o estado atual do modelo.
         /// </summary>
-        public Form MainForm => _view;
+        private void RefreshView()
+        {
+            _view.LoadTasks(_model.Tasks.ToList());
+        }
 
         /// <summary>
         /// Trata os eventos enviados pela vista.
@@ -73,7 +77,7 @@ namespace SimBioseTasks
         /// <param name="e">Dados associados ao evento de alteração.</param>
         private void Model_TasksChanged(object? sender, OperTaskEventArgs e)
         {
-            _view.LoadTasks(_model.Tasks.ToList());
+            RefreshView();
         }
     }
 }

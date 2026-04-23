@@ -12,8 +12,6 @@ namespace SimBioseTasks
 
             Controller controller = new Controller();
             controller.Start();
-
-            Application.Run(controller.MainForm);
         }
     }
 }
