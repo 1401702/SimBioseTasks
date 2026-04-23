@@ -5,7 +5,10 @@ using System.Windows.Forms;
 namespace SimBioseTasks
 {
     /// <summary>
-    /// Representa o controlador da aplicação.
+    /// Representa o controlador da aplicação no padrão MVC.
+    /// É responsável por coordenar o fluxo entre a View e o Model,
+    /// utilizando delegates e eventos para reduzir o acoplamento direto
+    /// entre as camadas.
     /// </summary>
     public class Controller
     {
@@ -13,7 +16,15 @@ namespace SimBioseTasks
         private readonly View _view;
 
         /// <summary>
-        /// Inicializa o controller.
+        /// Evento emitido pelo Controller para encaminhar pedidos da View para o Model.
+        /// Desta forma, o Controller não invoca diretamente métodos do Model,
+        /// limitando-se a publicar uma operação que o Model poderá tratar.
+        /// </summary>
+        public event Action<OperTask>? OnControllerToModel;
+
+        /// <summary>
+        /// Inicializa uma nova instância da classe <see cref="Controller"/>.
+        /// Cria o Model e a View, e estabelece as ligações por eventos entre as camadas.
         /// </summary>
         public Controller()
         {
@@ -22,10 +33,12 @@ namespace SimBioseTasks
 
             _view.OnViewEvent += EventOnView;
             _model.OnModelEvent += EventOnModel;
+            OnControllerToModel += _model.EventOnController;
         }
 
         /// <summary>
         /// Inicia a aplicação.
+        /// Atualiza o estado inicial da View e arranca o ciclo principal do WinForms.
         /// </summary>
         public void Start()
         {
@@ -34,7 +47,7 @@ namespace SimBioseTasks
         }
 
         /// <summary>
-        /// Atualiza a view com os dados atuais do model.
+        /// Atualiza a View com o estado atual das tarefas existentes no Model.
         /// </summary>
         private void RefreshView()
         {
@@ -42,8 +55,13 @@ namespace SimBioseTasks
         }
 
         /// <summary>
-        /// Trata eventos enviados pela view.
+        /// Trata os eventos emitidos pela View.
+        /// Recebe a operação pedida pelo utilizador e reencaminha-a para o Model
+        /// através do evento do Controller.
         /// </summary>
+        /// <param name="args">
+        /// Objeto que contém a operação pedida e a tarefa associada.
+        /// </param>
         private void EventOnView(OperTask args)
         {
             if (args == null || args.Task == null)
@@ -51,7 +69,7 @@ namespace SimBioseTasks
 
             try
             {
-                _model.Execute(args);
+                OnControllerToModel?.Invoke(args);
             }
             catch (Exception ex)
             {
@@ -60,8 +78,12 @@ namespace SimBioseTasks
         }
 
         /// <summary>
-        /// Trata eventos enviados pelo model.
+        /// Trata os eventos emitidos pelo Model.
+        /// Quando o estado das tarefas muda, o Controller atualiza a View.
         /// </summary>
+        /// <param name="args">
+        /// Objeto que contém a operação executada pelo Model e a tarefa associada.
+        /// </param>
         private void EventOnModel(OperTask args)
         {
             RefreshView();
