@@ -1,126 +1,192 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using SimBioseTasks;
 
-namespace SimBioseTasks
+/// <summary>
+/// Model do MVC
+/// </summary>
+public class Model : ITaskModel
 {
-    public class Model
+    private const string FileName = "tasks.json";
+    private List<BaseTask> _tasks;
+
+    /// <summary>
+    /// Obtém a lista de tarefas em modo de leitura.
+    /// </summary>
+    public IReadOnlyList<BaseTask> Tasks => _tasks;
+
+    /// <summary>
+    /// Ocorre quando a coleção de tarefas é alterada.
+    /// </summary>
+    public event EventHandler<OperTaskEventArgs>? TasksChanged;
+
+    /// <summary>
+    /// Inicializa uma nova instância do modelo e carrega as tarefas do ficheiro JSON.
+    /// </summary>
+    public Model()
     {
-        #region Fields and Properties
+        _tasks = new List<BaseTask>();
+        LoadTasksFromJson();
+    }
 
-        private const string FileName = "tasks.json";
-        private List<BaseTask> _tasks;
-
-        public IReadOnlyList<BaseTask> Tasks => _tasks;
-
-        #endregion
-
-        #region Constructor
-
-        public Model()
+    /// <summary>
+    /// Carrega as tarefas a partir do ficheiro JSON para memória.
+    /// </summary>
+    /// <returns>
+    /// Devolve true se o carregamento foi efetuado com sucesso;
+    /// devolve false se o ficheiro não existir ou estiver vazio.
+    /// </returns>
+    private bool LoadTasksFromJson()
+    {
+        if (!File.Exists(FileName))
         {
             _tasks = new List<BaseTask>();
-            LoadTasksFromJson();
+            return false;
         }
 
-        #endregion
+        string json = File.ReadAllText(FileName);
 
-        #region Load and Save
-
-        public bool LoadTasksFromJson()
+        if (string.IsNullOrWhiteSpace(json))
         {
-            if (!File.Exists(FileName))
-            {
-                _tasks = new List<BaseTask>();
-                return false;
-            }
-
-            string json = File.ReadAllText(FileName);
-
-            if (string.IsNullOrWhiteSpace(json))
-            {
-                _tasks = new List<BaseTask>();
-                return false;
-            }
-
-            _tasks = JsonConvert.DeserializeObject<List<BaseTask>>(json) ?? new List<BaseTask>();
-            return true;
+            _tasks = new List<BaseTask>();
+            return false;
         }
 
-        public void SaveTasks()
+        _tasks = JsonConvert.DeserializeObject<List<BaseTask>>(json) ?? new List<BaseTask>();
+        return true;
+    }
+
+    /// <summary>
+    /// Guarda a lista atual de tarefas no ficheiro JSON.
+    /// </summary>
+    private void SaveTasks()
+    {
+        string json = JsonConvert.SerializeObject(_tasks, Formatting.Indented);
+        File.WriteAllText(FileName, json);
+    }
+
+    /// <summary>
+    /// Executa uma operação sobre uma tarefa com base no comando recebido.
+    /// </summary>
+    /// <param name="operTask">
+    /// Objeto que contém a operação a executar e a tarefa associada.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// Lançada quando o comando ou a tarefa são nulos.
+    /// </exception>
+    public void Execute(OperTask operTask)
+    {
+        if (operTask == null)
+            throw new ArgumentNullException(nameof(operTask));
+
+        if (operTask.Task == null)
+            throw new ArgumentNullException(nameof(operTask.Task));
+
+        switch (operTask.Operation)
         {
-            string json = JsonConvert.SerializeObject(_tasks, Formatting.Indented);
-            File.WriteAllText(FileName, json);
+            case TaskOp.Create:
+                Create(operTask.Task);
+                break;
+
+            case TaskOp.Update:
+                Update(operTask.Task);
+                break;
+
+            case TaskOp.Delete:
+                Delete(operTask.Task);
+                break;
         }
+    }
 
-        #endregion
+    /// <summary>
+    /// Cria uma nova tarefa, atribui um identificador único,
+    /// guarda os dados e notifica a alteração.
+    /// </summary>
+    /// <param name="task">Tarefa a criar.</param>
+    private void Create(BaseTask task)
+    {
+        ValidateTask(task);
+        task.Id = GetNextId();
+        _tasks.Add(task);
+        SaveTasks();
+        OnTasksChanged(new OperTask { Operation = TaskOp.Create, Task = task });
+    }
 
-        #region CRUD
+    /// <summary>
+    /// Atualiza os dados de uma tarefa existente,
+    /// guarda as alterações e notifica a alteração.
+    /// </summary>
+    /// <param name="task">Tarefa com os novos dados.</param>
+    private void Update(BaseTask task)
+    {
+        ValidateTask(task);
 
-        public void CreateTask(BaseTask task)
-        {
-            ValidateTask(task);
+        var existing = _tasks.FirstOrDefault(t => t.Id == task.Id);
+        if (existing == null) return;
 
-            task.Id = GetNextId();
-            _tasks.Add(task);
+        existing.Title = task.Title;
+        existing.Description = task.Description;
+        existing.IsCompleted = task.IsCompleted;
 
-            SaveTasks();
-        }
-        public BaseTask ReadTask(int id)
-        {
-            return _tasks.FirstOrDefault(t => t.Id == id);
-        }
-        public void UpdateTask(BaseTask updatedTask)
-        {
-            ValidateTask(updatedTask);
+        SaveTasks();
+        OnTasksChanged(new OperTask { Operation = TaskOp.Update, Task = existing });
+    }
 
-            BaseTask existing = _tasks.FirstOrDefault(t => t.Id == updatedTask.Id);
-            if (existing == null) return;
+    /// <summary>
+    /// Remove uma tarefa existente,
+    /// guarda as alterações e notifica a alteração.
+    /// </summary>
+    /// <param name="task">Tarefa a remover.</param>
+    private void Delete(BaseTask task)
+    {
+        if (task.Id == null) return;
 
-            existing.Title = updatedTask.Title;
-            existing.Description = updatedTask.Description;
-            existing.IsCompleted = updatedTask.IsCompleted;
+        var existing = _tasks.FirstOrDefault(t => t.Id == task.Id);
+        if (existing == null) return;
 
-            SaveTasks();
-        }
+        _tasks.Remove(existing);
+        SaveTasks();
+        OnTasksChanged(new OperTask { Operation = TaskOp.Delete, Task = existing });
+    }
 
-        public void DeleteTask(int id)
-        {
-            BaseTask task = _tasks.FirstOrDefault(t => t.Id == id);
-            if (task == null) return;
+    /// <summary>
+    /// Calcula o próximo identificador disponível para uma nova tarefa.
+    /// </summary>
+    /// <returns>O próximo identificador inteiro disponível.</returns>
+    private int GetNextId()
+    {
+        if (_tasks.Count == 0)
+            return 1;
 
-            _tasks.Remove(task);
-            SaveTasks();
-        }
+        return _tasks.Max(t => t.Id ?? 0) + 1;
+    }
 
-        public List<BaseTask> GetTasks()
-        {
-            return _tasks.ToList();
-        }
+    /// <summary>
+    /// Valida os dados de uma tarefa antes de serem persistidos.
+    /// </summary>
+    /// <param name="task">Tarefa a validar.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Lançada quando a tarefa é nula.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Lançada quando o título da tarefa está vazio ou inválido.
+    /// </exception>
+    private void ValidateTask(BaseTask task)
+    {
+        if (task == null)
+            throw new ArgumentNullException(nameof(task));
 
-        #endregion
+        if (string.IsNullOrWhiteSpace(task.Title))
+            throw new ArgumentException("Task title is required.");
+    }
 
-        #region Rules
-
-        private void ValidateTask(BaseTask task)
-        {
-            if (task == null)
-                throw new ArgumentNullException(nameof(task));
-
-            if (string.IsNullOrWhiteSpace(task.Title))
-                throw new ArgumentException("Task title is required.");
-        }
-
-        private int GetNextId()
-        {
-            if (_tasks.Count == 0)
-                return 1;
-
-            return _tasks.Max(t => t.Id ?? 0) + 1;
-        }
-
-        #endregion
+    /// <summary>
+    /// Dispara o evento de alteração de tarefas.
+    /// </summary>
+    /// <param name="operTask">
+    /// Informação sobre a operação executada e a tarefa afetada.
+    /// </param>
+    protected virtual void OnTasksChanged(OperTask operTask)
+    {
+        TasksChanged?.Invoke(this, new OperTaskEventArgs(operTask));
     }
 }

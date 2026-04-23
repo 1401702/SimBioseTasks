@@ -6,7 +6,6 @@
         ///  Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-        private Model _model;
 
         private DataGridView dgvTasks;
 
@@ -19,9 +18,6 @@
         private Button btnAdd;
         private Button btnUpdate;
         private Button btnDelete;
-
-        private BaseTask tmpTask;
-        private BaseTask selectedTask;
 
         private SplitContainer split;
         private Panel panelTop;
@@ -132,12 +128,13 @@
             // 
             // btnConfirm
             // 
+            btnConfirm.Enabled = false;
             btnConfirm.Location = new Point(12, 164);
             btnConfirm.Name = "btnConfirm";
             btnConfirm.Size = new Size(80, 30);
             btnConfirm.TabIndex = 4;
             btnConfirm.Text = "Confirm";
-            btnConfirm.Click += btnAddNew_Click;
+            btnConfirm.Click += btnConfirm_Click;
             // 
             // lblId
             // 

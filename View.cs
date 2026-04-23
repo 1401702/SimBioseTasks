@@ -1,124 +1,217 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Windows.Forms;
+
 namespace SimBioseTasks
 {
+    /// <summary>
+    /// representa a View do MVC
+    /// </summary>
     public partial class View : Form
     {
-        public event Action<OperTask> OnViewEvent;
+        /// <summary>
+        /// Ocorre quando o utilizador executa uma ação na interface,
+        /// como criar, atualizar ou eliminar uma tarefa.
+        /// </summary>
+        public event Action<OperTask>? OnViewEvent;
+
+        private readonly BindingSource _tasksSource = new BindingSource();
+
+        private BaseTask? tmpTask = null;
+        private BaseTask? selectedTask = null;
+
+        /// <summary>
+        /// Inicializa uma nova instância da classe <see cref="View"/>.
+        /// Configura os componentes da interface e associa a grelha
+        /// ao objeto de binding das tarefas.
+        /// </summary>
         public View()
         {
             InitializeComponent();
-            LoadTasks();
+            //LoadTasks();
 
-            if (dgvTasks.Rows.Count > 0)
-            {
-                dgvTasks.Rows[0].Selected = true;
-            }
+            dgvTasks.AutoGenerateColumns = true;
+            dgvTasks.DataSource = _tasksSource;
         }
-        public void LoadTasks()
-        {
-            dgvTasks.DataSource = null;
-            dgvTasks.DataSource = Controller._model.GetTasks().ToList();
 
-            // se não houver nada, detalhe limpo
+        /// <summary>
+        /// Carrega a lista de tarefas na grelha e atualiza o painel de detalhe.
+        /// </summary>
+        /// <param name="tasks">Lista de tarefas a apresentar na interface.</param>
+        public void LoadTasks(List<BaseTask> tasks)
+        {
+            _tasksSource.DataSource = new BindingList<BaseTask>(tasks);
+            dgvTasks.DataSource = _tasksSource;
+
             if (dgvTasks.Rows.Count == 0)
             {
                 ClearDetail();
-
             }
             else
             {
-                // faz select da primeira linha
+                dgvTasks.ClearSelection();
                 dgvTasks.Rows[0].Selected = true;
+                selectedTask = dgvTasks.Rows[0].DataBoundItem as BaseTask;
+                if (selectedTask != null)
+                    ShowDetail(selectedTask);
             }
         }
-        private void btnUpdate_Click(object sender, EventArgs e)
-        {
-            // Criamos o comando
-            OperTask op = new OperTask();
-            op.Operation = "Update";
-            op.Task = new BaseTask
-            {
-                Id = string.IsNullOrEmpty(lblId.Text) ? (int?)null : int.Parse(lblId.Text),
-                Title = txtTitle.Text,
-                Description = txtDescription.Text
-            };
 
-            // Enviamos para o Controller
-            OnViewEvent?.Invoke(op);
-        }
+        /// <summary>
+        /// Limpa os campos do painel de detalhe e remove a seleção atual.
+        /// </summary>
         private void ClearDetail()
         {
             tmpTask = null;
+            selectedTask = null;
 
             lblId.Text = "";
             txtTitle.Text = "";
             txtDescription.Text = "";
             chkCompleted.Checked = false;
         }
+
+        /// <summary>
+        /// Trata o evento de mudança de seleção na grelha de tarefas.
+        /// Atualiza o painel de detalhe com a tarefa atualmente selecionada.
+        /// </summary>
+        /// <param name="sender">Objeto que originou o evento.</param>
+        /// <param name="e">Dados associados ao evento.</param>
         private void dgvTasks_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvTasks.SelectedRows.Count == 0)
-            {
-                //ClearDetail();
                 return;
-            }
-            var row = dgvTasks.SelectedRows[0];
-            selectedTask = (BaseTask)row.DataBoundItem;
 
-            ShowDetail(selectedTask);
+            var row = dgvTasks.SelectedRows[0];
+            selectedTask = row.DataBoundItem as BaseTask;
+
+            if (selectedTask != null)
+                ShowDetail(selectedTask);
         }
+
+        /// <summary>
+        /// Mostra no painel de detalhe os dados de uma tarefa.
+        /// </summary>
+        /// <param name="task">Tarefa a apresentar.</param>
         private void ShowDetail(BaseTask task)
         {
-            lblId.Text = task.Id.ToString();
+            lblId.Text = task.Id?.ToString() ?? "";
             txtTitle.Text = task.Title ?? string.Empty;
             txtDescription.Text = task.Description ?? string.Empty;
             chkCompleted.Checked = task.IsCompleted;
         }
+
+        /// <summary>
+        /// Trata o clique no botão de adicionar nova tarefa.
+        /// Limpa os campos do detalhe e prepara a interface para inserção.
+        /// </summary>
+        /// <param name="sender">Objeto que originou o evento.</param>
+        /// <param name="e">Dados associados ao evento.</param>
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            BaseTask newTask = new BaseTask();
-            // isto não deveria estar no controller?
-            // Id será atribuído internamente em AddTask
+            tmpTask = null;
             ClearDetail();
+            btnConfirm.Enabled = true;
             txtTitle.Select();
         }
-        private void btnDelete_Click(object sender, EventArgs e)
-        {
-            if (lblId.Text != "")
-            {
-                int tmpId = int.Parse(lblId.Text);
-                Controller.TaskView_btnDelete_Click(tmpId);
-                LoadTasks();
-            }
-        }
 
-        private void btnAddNew_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Trata o clique no botão de confirmação de criação de tarefa.
+        /// Cria um comando de criação e envia-o para o controller.
+        /// </summary>
+        /// <param name="sender">Objeto que originou o evento.</param>
+        /// <param name="e">Dados associados ao evento.</param>
+        private void btnConfirm_Click(object sender, EventArgs e)
         {
-            // Criamos o comando
-            OperTask op = new OperTask();
-            op.Operation = "Create";
-            op.Task = new BaseTask
+            var op = new OperTask
             {
-                Id = null,
-                Title = txtTitle.Text,
-                Description = txtDescription.Text
+                Operation = TaskOp.Create,
+                Task = new BaseTask
+                {
+                    Id = null,
+                    Title = txtTitle.Text,
+                    Description = txtDescription.Text,
+                    IsCompleted = chkCompleted.Checked
+                }
             };
 
-            // Enviamos para o Controller
+            OnViewEvent?.Invoke(op);
+            btnConfirm.Enabled = false;
+        }
+
+        /// <summary>
+        /// Trata o clique no botão de atualização de tarefa.
+        /// Cria um comando de atualização com os dados atuais do formulário
+        /// e envia-o para o controller.
+        /// </summary>
+        /// <param name="sender">Objeto que originou o evento.</param>
+        /// <param name="e">Dados associados ao evento.</param>
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            var op = new OperTask
+            {
+                Operation = TaskOp.Update,
+                Task = new BaseTask
+                {
+                    Id = string.IsNullOrWhiteSpace(lblId.Text) ? (int?)null : int.Parse(lblId.Text),
+                    Title = txtTitle.Text,
+                    Description = txtDescription.Text,
+                    IsCompleted = chkCompleted.Checked
+                }
+            };
+
             OnViewEvent?.Invoke(op);
         }
 
+        /// <summary>
+        /// Trata o clique no botão de eliminação de tarefa.
+        /// Envia para o controller um comando para remover a tarefa selecionada.
+        /// </summary>
+        /// <param name="sender">Objeto que originou o evento.</param>
+        /// <param name="e">Dados associados ao evento.</param>
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            if (dgvTasks.SelectedRows.Count == 0)
+                return;
+
+            var task = dgvTasks.SelectedRows[0].DataBoundItem as BaseTask;
+            if (task == null)
+                return;
+
+            var op = new OperTask
+            {
+                Operation = TaskOp.Delete,
+                Task = task
+            };
+
+            OnViewEvent?.Invoke(op);
+        }
+
+        /// <summary>
+        /// Trata a alteração do valor de uma célula na grelha.
+        /// Quando uma tarefa é editada diretamente na grelha,
+        /// envia um comando de atualização para o controller.
+        /// </summary>
+        /// <param name="sender">Objeto que originou o evento.</param>
+        /// <param name="e">Dados associados ao evento da célula alterada.</param>
         private void dgvTasks_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.RowIndex < 0) return;
+
             var row = dgvTasks.Rows[e.RowIndex];
+            var task = row.DataBoundItem as BaseTask;
 
-            // Criamos o comando
-            OperTask op = new OperTask();
-            op.Operation = "Update";
-            op.Task = (BaseTask)row.DataBoundItem;
+            if (task == null) return;
 
-            // Enviamos para o Controller
+            var op = new OperTask
+            {
+                Operation = TaskOp.Update,
+                Task = task
+            };
+
             OnViewEvent?.Invoke(op);
-
         }
     }
 }
