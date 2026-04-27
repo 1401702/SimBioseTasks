@@ -78,11 +78,11 @@ namespace SimBioseTasks
             }
             catch (InvalidOperationException ex)
             {
-                OnError?.Invoke(ex.Message); // erro controlado do Model
+                OnError?.Invoke(ex.Message);
             }
             catch (Exception ex)
             {
-                OnError?.Invoke("Erro inesperado: " + ex.Message);
+                OnError?.Invoke(ex.Message);
             }
         }
 

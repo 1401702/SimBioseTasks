@@ -123,9 +123,25 @@ public class Model
             string json = JsonConvert.SerializeObject(_tasks, Formatting.Indented);
             File.WriteAllText(FileName, json);
         }
+        // 1. O diretório ou caminho não existe
+        catch (DirectoryNotFoundException ex)
+        {
+            throw new InvalidOperationException("Pasta de destino não encontrada.", ex);
+        }
+        // 2. O arquivo está sendo usado por outro processo (ex: aberto no Notepad)
+        catch (IOException ex)
+        {
+            throw new InvalidOperationException("O ficheiro tasks.json está aberto por outro aplicativo.", ex);
+        }
+        // 3. Sem permissão de escrita (ex: pasta protegida pelo Admin)
+        catch (UnauthorizedAccessException ex)
+        {
+            throw new InvalidOperationException("Sem permissão para gravar o ficheiro tasks.json.", ex);
+        }
+        // 4. Erro genérico para qualquer outra coisa (ex: disco cheio)
         catch (Exception ex)
         {
-            throw new InvalidOperationException("Erro ao guardar tasks.json.", ex);
+            throw new InvalidOperationException("Erro crítico ao guardar o ficheiro tasks.json.", ex);
         }
     }
 
@@ -136,13 +152,11 @@ public class Model
     /// <param name="task">Tarefa a criar.</param>
     private void Create(BaseTask task)
     {
-        if (ValidateTask(task))
-        {
-            task.Id = GetNextId();
-            _tasks.Add(task);
-            SaveTasks();
-            OnModelEvent?.Invoke(new OperTask { Operation = TaskOp.Create, Task = task });
-        }
+        ValidateTask(task, requireId: false);
+        task.Id = GetNextId();
+        _tasks.Add(task);
+        SaveTasks();
+        OnModelEvent?.Invoke(new OperTask { Operation = TaskOp.Create, Task = task });
     }
 
     /// <summary>
@@ -152,18 +166,19 @@ public class Model
     /// <param name="task">Tarefa com os novos dados.</param>
     private void Update(BaseTask task)
     {
-        if (ValidateTask(task))
-        {
-            var existing = _tasks.FirstOrDefault(t => t.Id == task.Id);
-            if (existing == null) return;
+        ValidateTask(task, requireId: true);
 
-            existing.Title = task.Title;
-            existing.Description = task.Description;
-            existing.IsCompleted = task.IsCompleted;
+        var existing = _tasks.FirstOrDefault(t => t.Id == task.Id);
 
-            SaveTasks();
-            OnModelEvent?.Invoke(new OperTask { Operation = TaskOp.Update, Task = existing });
-        }
+        if (existing == null)
+            throw new InvalidOperationException($"Tarefa com ID {task.Id} não existe.");
+
+        existing.Title = task.Title;
+        existing.Description = task.Description;
+        existing.IsCompleted = task.IsCompleted;
+
+        SaveTasks();
+        OnModelEvent?.Invoke(new OperTask { Operation = TaskOp.Update, Task = existing });
     }
 
     /// <summary>
@@ -173,10 +188,15 @@ public class Model
     /// <param name="task">Tarefa a remover.</param>
     private void Delete(BaseTask task)
     {
-        if (task.Id == null) return;
+        if (task == null)
+            throw new ArgumentNullException(nameof(task));
+
+        if (task.Id == null || task.Id <= 0)
+            throw new InvalidOperationException("ID inválido para remoção.");
 
         var existing = _tasks.FirstOrDefault(t => t.Id == task.Id);
-        if (existing == null) return;
+        if (existing == null)
+            throw new InvalidOperationException($"Tarefa com ID {task.Id} não existe.");
 
         _tasks.Remove(existing);
         SaveTasks();
@@ -204,11 +224,18 @@ public class Model
     /// <returns>
     /// Devolve true se a tarefa for válida; caso contrário, devolve false.
     /// </returns>
-    private bool ValidateTask(BaseTask task)
+    private void ValidateTask(BaseTask task, bool requireId = false)
     {
-        if (task == null) return false;
-        if (string.IsNullOrWhiteSpace(task.Title)) return false;
+        if (task == null)
+            throw new Exception("Tarefa inválida.");
 
-        return true;
+        if (string.IsNullOrWhiteSpace(task.Title))
+            throw new Exception("O título é obrigatório mas está em branco.");
+
+        if (requireId && (task.Id == null || task.Id <= 0))
+            throw new Exception("ID inválido.");
+
+        if (task.Title.Length < 3)
+            throw new Exception("Título muito pequeno (mínimo 3 caráteres).");
     }
 }
