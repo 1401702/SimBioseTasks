@@ -76,6 +76,14 @@ namespace SimBioseTasks
             {
                 OnControllerToModel?.Invoke(args);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                OnError?.Invoke(ex.Message);
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                OnError?.Invoke(ex.Message);
+            }
             catch (InvalidOperationException ex)
             {
                 OnError?.Invoke(ex.Message);

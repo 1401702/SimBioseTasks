@@ -126,22 +126,22 @@ public class Model
         // 1. O diretório ou caminho não existe
         catch (DirectoryNotFoundException ex)
         {
-            throw new InvalidOperationException("Pasta de destino não encontrada.", ex);
+            throw new DirectoryNotFoundException("Pasta de destino não encontrada.", ex);
         }
         // 2. O arquivo está sendo usado por outro processo (ex: aberto no Notepad)
         catch (IOException ex)
         {
-            throw new InvalidOperationException("O ficheiro tasks.json está aberto por outro aplicativo.", ex);
+            throw new IOException("O ficheiro tasks.json está aberto por outro aplicativo.", ex);
         }
         // 3. Sem permissão de escrita (ex: pasta protegida pelo Admin)
         catch (UnauthorizedAccessException ex)
         {
-            throw new InvalidOperationException("Sem permissão para gravar o ficheiro tasks.json.", ex);
+            throw new UnauthorizedAccessException("Sem permissão para gravar o ficheiro tasks.json.", ex);
         }
         // 4. Erro genérico para qualquer outra coisa (ex: disco cheio)
         catch (Exception ex)
         {
-            throw new InvalidOperationException("Erro crítico ao guardar o ficheiro tasks.json.", ex);
+            throw new Exception("Erro crítico ao guardar o ficheiro tasks.json.", ex);
         }
     }
 
