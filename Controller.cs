@@ -34,7 +34,7 @@ namespace SimBioseTasks
         /// </summary>
         public Controller()
         {
-            _model = new Model(new JsonTaskRepository());
+            _model = new Model(new JsonTaskRepository("tasks.json"));
             _view = new View();
 
             _view.OnViewEvent += EventOnView;

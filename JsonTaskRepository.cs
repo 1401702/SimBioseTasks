@@ -22,8 +22,11 @@ namespace SimBioseTasks
         /// Inicializa uma nova instância de <see cref="JsonTaskRepository"/>.
         /// </summary>
         /// <param name="filePath">Caminho para o ficheiro JSON de persistência.</param>
-        public JsonTaskRepository(string filePath = "tasks.json")
+        public JsonTaskRepository(string filePath)
         {
+            if (string.IsNullOrWhiteSpace(filePath))
+                throw new ArgumentException("O caminho do ficheiro não pode ser nulo ou vazio.", nameof(filePath));
+
             _filePath = filePath;
         }
 
@@ -62,15 +65,15 @@ namespace SimBioseTasks
             }
             catch (IOException ex)
             {
-                throw new IOException("O ficheiro tasks.json está aberto por outro aplicativo.", ex);
+                throw new IOException($"O ficheiro '{_filePath}' está aberto por outro aplicativo.", ex);
             }
             catch (UnauthorizedAccessException ex)
             {
-                throw new UnauthorizedAccessException("Sem permissão para gravar o ficheiro tasks.json.", ex);
+                throw new UnauthorizedAccessException($"Sem permissão para gravar o ficheiro '{_filePath}'.", ex);
             }
             catch (Exception ex)
             {
-                throw new Exception("Erro crítico ao guardar o ficheiro tasks.json.", ex);
+                throw new InvalidOperationException($"Erro crítico ao guardar o ficheiro '{_filePath}'.", ex);
             }
         }
     }
