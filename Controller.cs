@@ -27,11 +27,14 @@ namespace SimBioseTasks
 
         /// <summary>
         /// Inicializa uma nova instância da classe <see cref="Controller"/>.
-        /// Cria o Model e a View, e estabelece as ligações por eventos entre as camadas.
+        /// Cria o repositório concreto e injeta-o no Model — desta forma, trocar
+        /// de JsonTaskRepository para qualquer outra implementação de ITaskRepository
+        /// (ex: base de dados, memória para testes) requer apenas alterar esta linha,
+        /// sem tocar no Model nem na View.
         /// </summary>
         public Controller()
         {
-            _model = new Model();
+            _model = new Model(new JsonTaskRepository());
             _view = new View();
 
             _view.OnViewEvent += EventOnView;

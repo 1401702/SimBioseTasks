@@ -1,19 +1,18 @@
-﻿using Newtonsoft.Json;
-using SimBioseTasks;
+﻿using SimBioseTasks;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 /// <summary>
 /// Representa o Model da aplicação no padrão MVC.
-/// É responsável por gerir os dados, aplicar regras de negócio,
-/// persistir tarefas em ficheiro JSON e notificar alterações ao Controller
-/// através de delegates e eventos.
+/// É responsável por gerir os dados e aplicar regras de negócio.
+/// A persistência é delegada a um <see cref="ITaskRepository"/>, injetado
+/// no construtor — o Model não sabe nem precisa de saber como ou onde os dados
+/// são guardados, tornando-o independente e reutilizável com qualquer backend.
 /// </summary>
 public class Model
 {
-    private static readonly string FileName = "tasks.json";
+    private readonly ITaskRepository _repository;
 
     private List<BaseTask> _tasks;
 
@@ -30,12 +29,14 @@ public class Model
 
     /// <summary>
     /// Inicializa uma nova instância da classe <see cref="Model"/>.
-    /// Cria a coleção interna e carrega as tarefas persistidas em ficheiro.
+    /// Recebe o repositório por injeção de dependência, ficando independente
+    /// de qualquer implementação concreta de persistência.
     /// </summary>
-    public Model()
+    /// <param name="repository">Repositório responsável por carregar e guardar tarefas.</param>
+    public Model(ITaskRepository repository)
     {
-        _tasks = new List<BaseTask>();
-        LoadTasksFromJson();
+        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        _tasks = _repository.Load();
     }
 
     /// <summary>
@@ -79,73 +80,6 @@ public class Model
     }
 
     /// <summary>
-    /// Carrega as tarefas a partir do ficheiro JSON para memória.
-    /// </summary>
-    /// <returns>
-    /// Devolve true se o carregamento for realizado com sucesso;
-    /// devolve false se o ficheiro não existir ou estiver vazio.
-    /// </returns>
-    private bool LoadTasksFromJson()
-    {
-        try
-        {
-            if (!File.Exists(FileName))
-            {
-                _tasks = new List<BaseTask>();
-                return false;
-            }
-
-            string json = File.ReadAllText(FileName);
-
-            if (string.IsNullOrWhiteSpace(json))
-            {
-                _tasks = new List<BaseTask>();
-                return false;
-            }
-
-            _tasks = JsonConvert.DeserializeObject<List<BaseTask>>(json) ?? new List<BaseTask>();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _tasks = new List<BaseTask>();
-            throw new InvalidOperationException("Erro ao carregar tasks.json", ex);
-        }
-    }
-
-    /// <summary>
-    /// Guarda a lista atual de tarefas no ficheiro JSON.
-    /// </summary>
-    private void SaveTasks()
-    {
-        try
-        {
-            string json = JsonConvert.SerializeObject(_tasks, Formatting.Indented);
-            File.WriteAllText(FileName, json);
-        }
-        // 1. O diretório ou caminho não existe
-        catch (DirectoryNotFoundException ex)
-        {
-            throw new DirectoryNotFoundException("Pasta de destino não encontrada.", ex);
-        }
-        // 2. O arquivo está sendo usado por outro processo (ex: aberto no Notepad)
-        catch (IOException ex)
-        {
-            throw new IOException("O ficheiro tasks.json está aberto por outro aplicativo.", ex);
-        }
-        // 3. Sem permissão de escrita (ex: pasta protegida pelo Admin)
-        catch (UnauthorizedAccessException ex)
-        {
-            throw new UnauthorizedAccessException("Sem permissão para gravar o ficheiro tasks.json.", ex);
-        }
-        // 4. Erro genérico para qualquer outra coisa (ex: disco cheio)
-        catch (Exception ex)
-        {
-            throw new Exception("Erro crítico ao guardar o ficheiro tasks.json.", ex);
-        }
-    }
-
-    /// <summary>
     /// Cria uma nova tarefa, atribui-lhe um identificador,
     /// persiste os dados e notifica o Controller.
     /// </summary>
@@ -155,7 +89,7 @@ public class Model
         ValidateTask(task, requireId: false);
         task.Id = GetNextId();
         _tasks.Add(task);
-        SaveTasks();
+        _repository.Save(_tasks);
         OnModelEvent?.Invoke(new OperTask { Operation = TaskOp.Create, Task = task });
     }
 
@@ -177,7 +111,7 @@ public class Model
         existing.Description = task.Description;
         existing.IsCompleted = task.IsCompleted;
 
-        SaveTasks();
+        _repository.Save(_tasks);
         OnModelEvent?.Invoke(new OperTask { Operation = TaskOp.Update, Task = existing });
     }
 
@@ -199,7 +133,7 @@ public class Model
             throw new InvalidOperationException($"Tarefa com ID {task.Id} não existe.");
 
         _tasks.Remove(existing);
-        SaveTasks();
+        _repository.Save(_tasks);
         OnModelEvent?.Invoke(new OperTask { Operation = TaskOp.Delete, Task = existing });
     }
 
