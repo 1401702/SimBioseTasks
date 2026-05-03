@@ -1,9 +1,11 @@
-# Projecto UAb - Laboratório de Desenvolvimento de Software 2025
+# Projecto UAb - Laboratório de Desenvolvimento de Software 2025/2026
 
 ## 1. Tecnologias e Dependências
 * **Framework:** .NET 10.0 Windows (WinExe)
 * **UI:** Windows Forms (WinForms)
 * **JSON:** Newtonsoft.Json (v13.0.4)
+
+
 
 ## 2. Estrutura do Projeto
 ```text
@@ -14,3 +16,8 @@ View.Designer.cs  # Interface gráfica (Desenho)
 Controller.cs     # Controlo de fluxo e eventos
 Program.cs        # Ponto de entrada (Main)
 tasks.json        # Base de dados em formato texto
+```
+
+## 3. Instruções
+* **Compilar:** dotnet build
+* **Executar:** dotnet run
