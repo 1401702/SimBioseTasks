@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -31,14 +32,15 @@ namespace SimBioseTasks
         /// </summary>
         public Controller()
         {
-            _model = new Model();
-            _view = new View();
+            _model = new Model();   // Inicializa o Model
+            _view = new View();     // Inicializa a View
 
-            _view.OnViewEvent += EventOnView;
-            _model.OnModelEvent += EventOnModel;
-            OnControllerToModel += _model.EventOnController;
-            OnError += msg => _view.ShowError(msg);
-
+            _view.OnViewEvent += EventOnView;                   // Subscreve eventos da View
+            //_model.OnModelEvent += EventOnModel;                // Subscreve eventos do Model
+            _model.OnTasksChanged += tasks => _view.LoadTasks(tasks);
+            OnControllerToModel += _model.EventOnController;    // Encaminha eventos do Controller para o Model
+            OnError += msg => _view.ShowError(msg);             // Tratamento de erros com encaminhamento para a view
+            _model.PublishInitialState();                       // Carrega a lista de tarefas do ficheiro
         }
 
         /// <summary>
@@ -47,16 +49,8 @@ namespace SimBioseTasks
         /// </summary>
         public void Start()
         {
-            RefreshView();
+            //RefreshView();
             Application.Run(_view);
-        }
-
-        /// <summary>
-        /// Atualiza a View com o estado atual das tarefas existentes no Model.
-        /// </summary>
-        private void RefreshView()
-        {
-            _view.LoadTasks(_model.Tasks.ToList());
         }
 
         /// <summary>
@@ -92,18 +86,6 @@ namespace SimBioseTasks
             {
                 OnError?.Invoke(ex.Message);
             }
-        }
-
-        /// <summary>
-        /// Trata os eventos emitidos pelo Model.
-        /// Quando o estado das tarefas muda, o Controller atualiza a View.
-        /// </summary>
-        /// <param name="args">
-        /// Objeto que contém a operação executada pelo Model e a tarefa associada.
-        /// </param>
-        private void EventOnModel(OperTask args)
-        {
-            RefreshView();
         }
     }
 }

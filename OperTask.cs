@@ -63,6 +63,6 @@ namespace SimBioseTasks
         /// Esta propriedade contém os dados que o Model irá criar, atualizar ou remover,
         /// conforme a operação indicada.
         /// </summary>
-        public BaseTask Task { get; set; }
+        public required BaseTask Task { get; set; }
     }
 }

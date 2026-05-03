@@ -22,7 +22,7 @@ namespace SimBioseTasks
 
         private readonly BindingSource _tasksSource = new BindingSource();
 
-        private BaseTask? tmpTask = null;
+        //private BaseTask? tmpTask = null;
         private BaseTask? selectedTask = null;
 
         /// <summary>
@@ -43,13 +43,18 @@ namespace SimBioseTasks
         /// Carrega a lista de tarefas na grelha e atualiza o painel de detalhe.
         /// </summary>
         /// <param name="tasks">Lista de tarefas a apresentar na interface.</param>
-        public void LoadTasks(List<BaseTask> tasks)
+        public void LoadTasks(IReadOnlyList<BaseTask> tasks)
         {
             _isRefreshingGrid = true;
             try
             {
-                _tasksSource.DataSource = new BindingList<BaseTask>(tasks);
+                _tasksSource.DataSource = new BindingList<BaseTask>(tasks.ToList());
                 dgvTasks.DataSource = _tasksSource;
+
+
+                if (dgvTasks.Columns.Count > 0)
+                    dgvTasks.Columns[0].Visible = false;
+
 
                 if (dgvTasks.Rows.Count == 0)
                 {
@@ -84,7 +89,7 @@ namespace SimBioseTasks
         /// </summary>
         private void ClearDetail()
         {
-            tmpTask = null;
+            //tmpTask = null;
             selectedTask = null;
 
             lblId.Text = "";
@@ -118,6 +123,9 @@ namespace SimBioseTasks
             {
                 ClearDetail();
             }
+            btnConfirm.Enabled = false;
+            btnAdd.Enabled = true;
+
         }
 
         /// <summary>
@@ -130,6 +138,8 @@ namespace SimBioseTasks
             txtTitle.Text = task.Title ?? string.Empty;
             txtDescription.Text = task.Description ?? string.Empty;
             chkCompleted.Checked = task.IsCompleted;
+            btnUpdate.Enabled = true;
+            btnDelete.Enabled = true;
         }
 
         /// <summary>
@@ -140,10 +150,13 @@ namespace SimBioseTasks
         /// <param name="e">Dados associados ao evento.</param>
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            tmpTask = null;
+            //tmpTask = null;
             ClearDetail();
             btnConfirm.Enabled = true;
             txtTitle.Select();
+            btnUpdate.Enabled = false;
+            btnAdd.Enabled = false;
+            btnDelete.Enabled = false;
         }
 
         /// <summary>
@@ -180,16 +193,8 @@ namespace SimBioseTasks
         private void btnUpdate_Click(object sender, EventArgs e)
         {
             int? id = null;
-            if (!string.IsNullOrWhiteSpace(lblId.Text))
-            {
-                if (int.TryParse(lblId.Text, out int parsedId))
-                    id = parsedId;
-                else
-                {
-                    ShowError("ID inválido.");
-                    return;
-                }
-            }
+            _ = int.TryParse(lblId.Text, out var parsedId);
+            if (!string.IsNullOrWhiteSpace(lblId.Text)) id = parsedId;
 
             var op = new OperTask
             {
@@ -204,6 +209,7 @@ namespace SimBioseTasks
             };
 
             OnViewEvent?.Invoke(op);
+
         }
 
         /// <summary>
@@ -257,5 +263,6 @@ namespace SimBioseTasks
 
             OnViewEvent?.Invoke(op);
         }
+
     }
 }

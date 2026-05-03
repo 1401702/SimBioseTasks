@@ -23,6 +23,12 @@ public class Model
     public IReadOnlyList<BaseTask> Tasks => _tasks;
 
     /// <summary>
+    /// Evento emitido quando a lista de tarefas muda.
+    /// Envia o estado atual das tarefas para quem estiver subscrito.
+    /// </summary>
+    public event Action<IReadOnlyList<BaseTask>>? OnTasksChanged;
+
+    /// <summary>
     /// Evento emitido pelo Model quando ocorre uma alteração nas tarefas.
     /// Permite ao Controller ser notificado sem dependência direta da View.
     /// </summary>
@@ -36,6 +42,14 @@ public class Model
     {
         _tasks = new List<BaseTask>();
         LoadTasksFromJson();
+    }
+
+    /// <summary>
+    /// Carrega a lista de tarefas no arranque da aplicação
+    /// </summary>
+    public void PublishInitialState()
+    {
+        NotifyTasksChanged();
     }
 
     /// <summary>
@@ -76,6 +90,14 @@ public class Model
             case TaskOp.Confirm:
                 break;
         }
+    }
+
+    /// <summary>
+    /// Sempre que a lista de tarefas muda no Model, ela é enviada para o controller
+    /// </summary>
+    private void NotifyTasksChanged()
+    {
+        OnTasksChanged?.Invoke(_tasks.AsReadOnly());
     }
 
     /// <summary>
@@ -157,6 +179,10 @@ public class Model
         _tasks.Add(task);
         SaveTasks();
         OnModelEvent?.Invoke(new OperTask { Operation = TaskOp.Create, Task = task });
+
+        // Evento de estado (como ficou)
+        NotifyTasksChanged();
+
     }
 
     /// <summary>
@@ -179,6 +205,10 @@ public class Model
 
         SaveTasks();
         OnModelEvent?.Invoke(new OperTask { Operation = TaskOp.Update, Task = existing });
+
+        // Evento de estado (como ficou)
+        NotifyTasksChanged();
+
     }
 
     /// <summary>
@@ -201,6 +231,10 @@ public class Model
         _tasks.Remove(existing);
         SaveTasks();
         OnModelEvent?.Invoke(new OperTask { Operation = TaskOp.Delete, Task = existing });
+
+        // Evento de estado (como ficou)
+        NotifyTasksChanged();
+
     }
 
     /// <summary>
