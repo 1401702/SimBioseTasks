@@ -1,42 +1,61 @@
-﻿namespace SimBioseTasks
+﻿using System.Drawing;
+using System.Windows.Forms;
+
+namespace SimBioseTasks
 {
     partial class View
     {
         /// <summary>
-        ///  Required designer variable.
+        /// Variável necessária para o suporte ao Designer.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-
-        private DataGridView dgvTasks;
-
         private Panel panelDetail;
-
         private TextBox txtTitle;
         private TextBox txtDescription;
         private CheckBox chkCompleted;
-
-        private Button btnAdd;
+        private Button btNew;
         private Button btnUpdate;
         private Button btnDelete;
-
         private SplitContainer split;
-        private Panel panelTop;
         private Label lblId;
 
+        /// <summary>
+        /// Liberta os recursos que estiverem a ser utilizados.
+        /// </summary>
+        /// <param name="disposing">
+        /// true se os recursos geridos devem ser eliminados; caso contrário, false.
+        /// </param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Método necessário para suporte ao Designer.
+        /// </summary>
         private void InitializeComponent()
         {
             split = new SplitContainer();
             panelTop = new Panel();
-            btnConfirm = new Button();
             dgvTasks = new DataGridView();
-            btnAdd = new Button();
-            btnUpdate = new Button();
-            btnDelete = new Button();
             panelDetail = new Panel();
-            lblId = new Label();
-            txtTitle = new TextBox();
+            panel3 = new Panel();
+            btnDelete = new Button();
+            btnUpdate = new Button();
+            btNew = new Button();
+            panel2 = new Panel();
             txtDescription = new TextBox();
+            panelup = new Panel();
+            txtTitle = new TextBox();
             chkCompleted = new CheckBox();
+            lblId = new Label();
             ((System.ComponentModel.ISupportInitialize)split).BeginInit();
             split.Panel1.SuspendLayout();
             split.Panel2.SuspendLayout();
@@ -44,13 +63,16 @@
             panelTop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvTasks).BeginInit();
             panelDetail.SuspendLayout();
+            panel3.SuspendLayout();
+            panel2.SuspendLayout();
+            panelup.SuspendLayout();
             SuspendLayout();
             // 
             // split
             // 
             split.Dock = DockStyle.Fill;
             split.Location = new Point(0, 0);
-            split.Margin = new Padding(3, 4, 3, 4);
+            split.Margin = new Padding(3, 2, 3, 2);
             split.Name = "split";
             split.Orientation = Orientation.Horizontal;
             // 
@@ -61,140 +83,163 @@
             // split.Panel2
             // 
             split.Panel2.Controls.Add(panelDetail);
-            split.Size = new Size(1008, 761);
-            split.SplitterDistance = 537;
-            split.SplitterWidth = 5;
+            split.Size = new Size(1373, 974);
+            split.SplitterDistance = 687;
+            split.SplitterWidth = 3;
             split.TabIndex = 0;
             // 
             // panelTop
             // 
-            panelTop.Controls.Add(btnConfirm);
+            panelTop.AutoSize = true;
             panelTop.Controls.Add(dgvTasks);
-            panelTop.Controls.Add(btnAdd);
-            panelTop.Controls.Add(btnUpdate);
-            panelTop.Controls.Add(btnDelete);
             panelTop.Dock = DockStyle.Fill;
             panelTop.Location = new Point(0, 0);
-            panelTop.Margin = new Padding(3, 4, 3, 4);
+            panelTop.Margin = new Padding(3, 2, 3, 2);
             panelTop.Name = "panelTop";
-            panelTop.Size = new Size(1008, 537);
+            panelTop.Size = new Size(1373, 687);
             panelTop.TabIndex = 0;
-            // 
-            // btnConfirm
-            // 
-            btnConfirm.Enabled = false;
-            btnConfirm.Location = new Point(307, 16);
-            btnConfirm.Margin = new Padding(3, 4, 3, 4);
-            btnConfirm.Name = "btnConfirm";
-            btnConfirm.Size = new Size(141, 40);
-            btnConfirm.TabIndex = 4;
-            btnConfirm.Text = "Confirm New Task";
-            btnConfirm.Click += btnConfirm_Click;
             // 
             // dgvTasks
             // 
-            dgvTasks.ColumnHeadersHeight = 29;
-            dgvTasks.Dock = DockStyle.Bottom;
-            dgvTasks.Location = new Point(0, 70);
-            dgvTasks.Margin = new Padding(3, 4, 3, 4);
+            dgvTasks.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvTasks.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvTasks.Dock = DockStyle.Fill;
+            dgvTasks.Location = new Point(0, 0);
+            dgvTasks.Margin = new Padding(3, 2, 3, 2);
+            dgvTasks.MultiSelect = false;
             dgvTasks.Name = "dgvTasks";
             dgvTasks.RowHeadersWidth = 51;
-            dgvTasks.Size = new Size(1008, 467);
+            dgvTasks.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvTasks.Size = new Size(1373, 687);
             dgvTasks.TabIndex = 0;
             dgvTasks.CellValueChanged += dgvTasks_CellValueChanged;
             dgvTasks.SelectionChanged += dgvTasks_SelectionChanged;
-            dgvTasks.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvTasks.MultiSelect = false;
-
-            // 
-            // btnAdd
-            // 
-            btnAdd.Location = new Point(14, 16);
-            btnAdd.Margin = new Padding(3, 4, 3, 4);
-            btnAdd.Name = "btnAdd";
-            btnAdd.Size = new Size(91, 40);
-            btnAdd.TabIndex = 1;
-            btnAdd.Text = "Add New";
-            btnAdd.Click += btnAdd_Click;
-            // 
-            // btnUpdate
-            // 
-            btnUpdate.Location = new Point(112, 16);
-            btnUpdate.Margin = new Padding(3, 4, 3, 4);
-            btnUpdate.Name = "btnUpdate";
-            btnUpdate.Size = new Size(91, 40);
-            btnUpdate.TabIndex = 2;
-            btnUpdate.Text = "Update";
-            btnUpdate.Click += btnUpdate_Click;
-            // 
-            // btnDelete
-            // 
-            btnDelete.Location = new Point(210, 16);
-            btnDelete.Margin = new Padding(3, 4, 3, 4);
-            btnDelete.Name = "btnDelete";
-            btnDelete.Size = new Size(91, 40);
-            btnDelete.TabIndex = 3;
-            btnDelete.Text = "Delete";
-            btnDelete.Click += btnDelete_Click;
             // 
             // panelDetail
             // 
+            panelDetail.Controls.Add(panel3);
+            panelDetail.Controls.Add(panel2);
+            panelDetail.Controls.Add(panelup);
             panelDetail.Controls.Add(lblId);
-            panelDetail.Controls.Add(txtTitle);
-            panelDetail.Controls.Add(txtDescription);
-            panelDetail.Controls.Add(chkCompleted);
             panelDetail.Dock = DockStyle.Fill;
             panelDetail.Location = new Point(0, 0);
-            panelDetail.Margin = new Padding(3, 4, 3, 4);
+            panelDetail.Margin = new Padding(3, 2, 3, 2);
             panelDetail.Name = "panelDetail";
-            panelDetail.Size = new Size(1008, 219);
+            panelDetail.Size = new Size(1373, 284);
             panelDetail.TabIndex = 0;
+            // 
+            // panel3
+            // 
+            panel3.Controls.Add(btnDelete);
+            panel3.Controls.Add(btnUpdate);
+            panel3.Controls.Add(btNew);
+            panel3.Dock = DockStyle.Bottom;
+            panel3.Location = new Point(0, 246);
+            panel3.Name = "panel3";
+            panel3.Size = new Size(1373, 38);
+            panel3.TabIndex = 7;
+            // 
+            // btnDelete
+            // 
+            btnDelete.Location = new Point(175, 2);
+            btnDelete.Margin = new Padding(3, 2, 3, 2);
+            btnDelete.Name = "btnDelete";
+            btnDelete.Size = new Size(80, 30);
+            btnDelete.TabIndex = 3;
+            btnDelete.Text = "Delete";
+            btnDelete.UseVisualStyleBackColor = true;
+            btnDelete.Click += btnDelete_Click;
+            // 
+            // btnUpdate
+            // 
+            btnUpdate.Location = new Point(89, 2);
+            btnUpdate.Margin = new Padding(3, 2, 3, 2);
+            btnUpdate.Name = "btnUpdate";
+            btnUpdate.Size = new Size(80, 30);
+            btnUpdate.TabIndex = 2;
+            btnUpdate.Text = "Update";
+            btnUpdate.UseVisualStyleBackColor = true;
+            btnUpdate.Click += btnUpdate_Click;
+            // 
+            // btNew
+            // 
+            btNew.Location = new Point(3, 2);
+            btNew.Margin = new Padding(3, 2, 3, 2);
+            btNew.Name = "btNew";
+            btNew.Size = new Size(80, 30);
+            btNew.TabIndex = 1;
+            btNew.Text = "New";
+            btNew.UseVisualStyleBackColor = true;
+            btNew.Click += btnNew_Click;
+            // 
+            // panel2
+            // 
+            panel2.Controls.Add(txtDescription);
+            panel2.Dock = DockStyle.Fill;
+            panel2.Location = new Point(0, 24);
+            panel2.Name = "panel2";
+            panel2.Size = new Size(1373, 260);
+            panel2.TabIndex = 6;
+            // 
+            // txtDescription
+            // 
+            txtDescription.Dock = DockStyle.Fill;
+            txtDescription.Location = new Point(0, 0);
+            txtDescription.Margin = new Padding(3, 2, 3, 2);
+            txtDescription.Multiline = true;
+            txtDescription.Name = "txtDescription";
+            txtDescription.Size = new Size(1373, 260);
+            txtDescription.TabIndex = 1;
+            // 
+            // panelup
+            // 
+            panelup.Controls.Add(txtTitle);
+            panelup.Controls.Add(chkCompleted);
+            panelup.Dock = DockStyle.Top;
+            panelup.Location = new Point(0, 0);
+            panelup.Name = "panelup";
+            panelup.Size = new Size(1373, 24);
+            panelup.TabIndex = 5;
+            // 
+            // txtTitle
+            // 
+            txtTitle.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtTitle.Location = new Point(0, 0);
+            txtTitle.Margin = new Padding(3, 200, 100, 2);
+            txtTitle.Name = "txtTitle";
+            txtTitle.Size = new Size(1273, 23);
+            txtTitle.TabIndex = 0;
+            // 
+            // chkCompleted
+            // 
+            chkCompleted.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            chkCompleted.Location = new Point(1288, 0);
+            chkCompleted.Margin = new Padding(3, 2, 3, 2);
+            chkCompleted.Name = "chkCompleted";
+            chkCompleted.Size = new Size(85, 24);
+            chkCompleted.TabIndex = 2;
+            chkCompleted.Text = "Completed";
+            chkCompleted.UseVisualStyleBackColor = true;
             // 
             // lblId
             // 
             lblId.AutoSize = true;
-            lblId.Location = new Point(14, 12);
+            lblId.Location = new Point(12, 9);
             lblId.Name = "lblId";
-            lblId.Size = new Size(39, 20);
+            lblId.Size = new Size(0, 15);
             lblId.TabIndex = 3;
-            lblId.Text = "lblId";
-            // 
-            // txtTitle
-            // 
-            txtTitle.Location = new Point(14, 39);
-            txtTitle.Margin = new Padding(3, 4, 3, 4);
-            txtTitle.Name = "txtTitle";
-            txtTitle.Size = new Size(878, 27);
-            txtTitle.TabIndex = 0;
-            // 
-            // txtDescription
-            // 
-            txtDescription.Location = new Point(14, 77);
-            txtDescription.Margin = new Padding(3, 4, 3, 4);
-            txtDescription.Multiline = true;
-            txtDescription.Name = "txtDescription";
-            txtDescription.Size = new Size(982, 116);
-            txtDescription.TabIndex = 1;
-            // 
-            // chkCompleted
-            // 
-            chkCompleted.Location = new Point(899, 39);
-            chkCompleted.Margin = new Padding(3, 4, 3, 4);
-            chkCompleted.Name = "chkCompleted";
-            chkCompleted.Size = new Size(97, 32);
-            chkCompleted.TabIndex = 2;
-            chkCompleted.Text = "Completed";
             // 
             // View
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1008, 761);
+            ClientSize = new Size(1373, 974);
             Controls.Add(split);
-            Margin = new Padding(3, 4, 3, 4);
+            Margin = new Padding(3, 2, 3, 2);
             Name = "View";
             Text = "SimBiose Tasks";
             split.Panel1.ResumeLayout(false);
+            split.Panel1.PerformLayout();
             split.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)split).EndInit();
             split.ResumeLayout(false);
@@ -202,27 +247,20 @@
             ((System.ComponentModel.ISupportInitialize)dgvTasks).EndInit();
             panelDetail.ResumeLayout(false);
             panelDetail.PerformLayout();
+            panel3.ResumeLayout(false);
+            panel2.ResumeLayout(false);
+            panel2.PerformLayout();
+            panelup.ResumeLayout(false);
+            panelup.PerformLayout();
             ResumeLayout(false);
         }
-        /// <summary>
-        ///  Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
-        #region Windows Form Designer generated code
-
-
 
         #endregion
 
-        private Button btnConfirm;
+        private Panel panelTop;
+        private DataGridView dgvTasks;
+        private Panel panelup;
+        private Panel panel3;
+        private Panel panel2;
     }
 }
