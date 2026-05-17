@@ -19,11 +19,6 @@ namespace SimBioseTasks
         private bool _isRefreshingGrid = false;
 
         /// <summary>
-        /// Fonte de dados usada para o binding entre a lista de tarefas e a grelha.
-        /// </summary>
-        private readonly BindingSource _tasksSource = new BindingSource();
-
-        /// <summary>
         /// Tarefa atualmente selecionada.
         /// </summary>
         private BaseTask? _selectedTask = null;
@@ -46,7 +41,6 @@ namespace SimBioseTasks
             InitializeComponent();
 
             dgvTasks.AutoGenerateColumns = true;
-            dgvTasks.DataSource = _tasksSource;
         }
 
         /// <summary>
@@ -68,8 +62,7 @@ namespace SimBioseTasks
 
             try
             {
-                _tasksSource.DataSource = new BindingList<BaseTask>(tasks.ToList());
-                dgvTasks.DataSource = _tasksSource;
+                dgvTasks.DataSource = tasks.ToList();
 
                 if (dgvTasks.Columns.Count > 0)
                     dgvTasks.Columns[0].Visible = false;

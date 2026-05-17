@@ -61,7 +61,7 @@ namespace SimBioseTasks
         {
             try
             {
-                _model.Create(task);
+                _model.Save(task);
             }
             catch (Exception ex)
             {

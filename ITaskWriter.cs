@@ -6,16 +6,12 @@
     public interface ITaskWriter
     {
         /// <summary>
-        /// Cria uma nova tarefa.
+        /// Guarda uma tarefa.
+        /// Se a tarefa não tiver identificador(ID), é criada;
+        /// caso contrário, é atualizada.
         /// </summary>
-        /// <param name="task">Tarefa a criar.</param>
-        void Create(BaseTask task);
-
-        /// <summary>
-        /// Atualiza uma tarefa existente.
-        /// </summary>
-        /// <param name="task">Tarefa com os novos dados.</param>
-        void Update(BaseTask task);
+        /// <param name="task">Tarefa a guardar.</param>
+        void Save(BaseTask task);
 
         /// <summary>
         /// Remove uma tarefa existente a partir do seu identificador.

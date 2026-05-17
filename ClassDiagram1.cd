@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="SimBioseTasks.BaseTask">
+    <Position X="13.5" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAgAEAAAAAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <FileName>BaseTask.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SimBioseTasks.Controller">
+    <Position X="9.75" Y="9.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAACCAAAAAAgAAAAAAABAAAAAAgCAAAAAAAAA=</HashCode>
+      <FileName>Controller.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SimBioseTasks.Model" BaseTypeListCollapsed="true">
+    <Position X="13.5" Y="12.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAwAAIgAAAAAARAAAAAQAAAAAAEAAEAAgIIAAABAAAA=</HashCode>
+      <FileName>Model.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="SimBioseTasks.OperTask">
+    <Position X="16" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEEAAAAAAAA=</HashCode>
+      <FileName>OperTask.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SimBioseTasks.Program">
+    <Position X="4.75" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SimBioseTasks.View" BaseTypeListCollapsed="true">
+    <Position X="13.5" Y="3.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAIQAIABBCAABAgQQQeDAAACEhiIRAAARAIAgQAAAQQ=</HashCode>
+      <FileName>View.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Interface Name="SimBioseTasks.ITaskBase">
+    <Position X="8.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ITaskBase.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="SimBioseTasks.ITaskNotifier">
+    <Position X="6" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAA=</HashCode>
+      <FileName>ITaskNotifier.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="SimBioseTasks.ITaskReader">
+    <Position X="9" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAIA=</HashCode>
+      <FileName>ITaskReader.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="SimBioseTasks.ITaskView">
+    <Position X="4.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAYAAAAAEAiAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ITaskView.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="SimBioseTasks.ITaskWriter">
+    <Position X="11.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ITaskWriter.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="SimBioseTasks.TaskOp">
+    <Position X="6" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAIAAAAAQAAAAAAAAAAAAAAEAAEAAAAAAAAAAAAA=</HashCode>
+      <FileName>OperTask.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

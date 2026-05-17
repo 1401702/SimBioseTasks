@@ -73,7 +73,7 @@ namespace SimBioseTasks
         /// <param name="task">Tarefa a criar.</param>
         /// <exception cref="ArgumentNullException">Lançada quando a tarefa é nula.</exception>
         /// <exception cref="Exception">Lançada quando os dados da tarefa são inválidos.</exception>
-        public void Create(BaseTask task)
+        private void Create(BaseTask task)
         {
             ValidateTask(task, requireId: false);
 
@@ -92,7 +92,7 @@ namespace SimBioseTasks
         /// <exception cref="ArgumentNullException">Lançada quando a tarefa é nula.</exception>
         /// <exception cref="Exception">Lançada quando os dados da tarefa são inválidos.</exception>
         /// <exception cref="InvalidOperationException">Lançada quando a tarefa não existe.</exception>
-        public void Update(BaseTask task)
+        private void Update(BaseTask task)
         {
             ValidateTask(task, requireId: true);
 
@@ -107,6 +107,24 @@ namespace SimBioseTasks
 
             SaveTasks();
             NotifyTasksChanged();
+        }
+        
+        /// <summary>
+        /// Cria ou atualiza uma tarefa existente, guarda a alteração em ficheiro
+        /// </summary>
+        /// <param name="task">Tarefa com os novos dados.</param>
+        public void Save(BaseTask task)
+        {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task), "Tarefa inválida.");
+
+            if (task.Id == null)
+            {
+                Create(task);
+                return;
+            }
+
+            Update(task);
         }
 
         /// <summary>
